@@ -501,6 +501,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
 
+    <!-- SEO 기본 메타 -->
+    <meta name="description" content="블로그의 간단한 설명을 여기에 입력하세요." />
+    <meta name="keywords" content="Python, Qt, 개발, zzodosa, 블로그, IT, 프로그래밍" />
+    <meta name="author" content="블로그 운영자 이름" />
+    <meta name="robots" content="index,follow" />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta expr:content="data:blog.title" property="og:title" />
+    <meta expr:content="data:blog.metaDescription" property="og:description" />
+    <meta expr:content="data:blog.url" property="og:url" />
+    <meta property="og:image" content="대표이미지 URL" />
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta expr:content="data:blog.title" property="twitter:title" />
+    <meta expr:content="data:blog.metaDescription" property="twitter:description" />
+    <meta expr:content="data:blog.postImageUrl" property="twitter:image" />
+    <!-- Canonical URL -->
+    <link rel="canonical" expr:href="data:blog.canonicalUrl" />
+    <!-- Google AdSense -->
+    <script data-ad-client="ca-pub-여기에-본인-애드센스-코드" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
 </head>
 
 <body>
@@ -519,6 +540,11 @@
         <div class='clearfix' />
         <section id='outer-wrapper'>
             <article id='article-wrapper'>
+                <!-- 본문 상단 광고 예시 -->
+                <ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-client="ca-pub-여기에-본인-애드센스-코드" data-ad-slot="광고슬롯번호" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
                 <b:section class='main' id='main'>
                     <b:widget id='Blog1' locked='true' title='Blog Posting' type='Blog'></b:widget>
                 </b:section>
@@ -526,7 +552,21 @@
         </section>
         <div class='clearfix' />
         <aside id='sidebar-wrapper'>
-            <b:section class='sidebar' id='sidebar' showaddelement='yes'></b:section>
+            <b:section class='sidebar' id='sidebar' showaddelement='yes'>
+                <!-- 인기글 위젯 -->
+                <b:widget id='PopularPosts1' locked='false' title='인기글' type='PopularPosts' />
+                <!-- 라벨(카테고리) 위젯 -->
+                <b:widget id='Label1' locked='false' title='카테고리' type='Label' />
+                <!-- 검색 위젯 -->
+                <b:widget id='Search1' locked='false' title='검색' type='SearchBox' />
+                <!-- SNS 위젯(직접 HTML로 추가) -->
+                <b:widget id='HTML1' locked='false' title='Follow Me' type='HTML'>
+                    <content>
+                        <a href="https://github.com/zzodosa" target="_blank">GitHub</a>
+                        <a href="https://twitter.com/zzodosa" target="_blank">Twitter</a>
+                    </content>
+                </b:widget>
+            </b:section>
         </aside>
         <div class='clearfix' />
         <footer id='footer-wrapper'>
