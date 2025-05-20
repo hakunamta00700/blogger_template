@@ -360,6 +360,8 @@
             border-collapse: collapse;
             width: 100%;
             margin: 1em 0;
+            background: #fff;
+            font-size: 1em;
         }
         
         th,
@@ -367,10 +369,17 @@
             border: 1px solid #bbb;
             padding: 0.5em 1em;
             text-align: left;
+            word-break: break-word;
         }
         
         th {
             background: #f5f5f5;
+            font-weight: 700;
+            color: #1976d2;
+        }
+        
+        tr:nth-child(even) td {
+            background: #f8fafc;
         }
         
         a {
@@ -456,6 +465,32 @@
             font-weight: 500;
             margin: 0.8em 0 0.2em 0;
             color: #1976d2;
+        }
+        /* 각주(footnote) 링크 스타일 */
+        
+        .footnote-ref {
+            font-size: 0.85em;
+            vertical-align: super;
+            color: #1976d2;
+            text-decoration: underline dotted;
+            cursor: pointer;
+            margin-left: 2px;
+        }
+        
+        .footnotes {
+            font-size: 0.95em;
+            border-top: 1px solid #ddd;
+            margin-top: 2em;
+            color: #555;
+            padding-top: 1em;
+        }
+        
+        .footnotes ol {
+            padding-left: 1.5em;
+        }
+        
+        .footnotes li {
+            margin-bottom: 0.5em;
         }
     </style>
 
