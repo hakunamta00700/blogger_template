@@ -1686,17 +1686,99 @@ var avatar=$("#comments");avatar.find('.comment_avatar img').each(function() {va
 <b:if cond='data:blog.pageType != &quot;item&quot;'>
 <b:if cond='data:blog.pageType != &quot;static_page&quot;'>
 <b:if cond='data:blog.pageType == &quot;index&quot;'>
-<b:if cond='data:post.isFirstPost'> 
 <script type='text/javascript'>
-//<![CDATA[
-function arlina_thumb_size(e,t){var n=200;var r=150;image_tag='<img width="'+n+'" height="'+r+'" src="'+e.replace("/s72-c/","/w"+n+"-h"+r+"-c/")+'" alt="'+t.replace(/"/g,"")+'" title="'+t.replace(/"/g,"")+'" class="post-thumbnail"/>';if(t!="")return image_tag;else return""}
-//]]>
+  //<![CDATA[
+  function arlina_thumb_size_modified(currentThumbnailUrl, postTitle, postBody) {
+    var desiredWidth = 200; // 원하는 썸네일 너비
+    var desiredHeight = 150; // 원하는 썸네일 높이
+    var finalThumbnailUrl = currentThumbnailUrl;
+    var defaultPlaceholder = "http://1.bp.blogspot.com/-htG7vy9vIAA/Tp0KrMUdoWI/AAAAAAAABAU/e7XkFtErqsU/s1600/grey.GIF"; // 기본 이미지 없음 이미지
+
+    // 알려진 블로거 플레이스홀더 이미지 URL 패턴
+    var noImagePlaceholders = [
+      "http://1.bp.blogspot.com/-htG7vy9vIAA/Tp0KrMUdoWI/AAAAAAAABAU/e7XkFtErqsU/s1600/grey.GIF",
+      "https://resources.blogblog.com/img/blank.gif",
+      "noimage", // 플레이스홀더에 포함될 수 있는 일반적인 키워드
+      "/img/blank.gif" // 플레이스홀더로 연결될 수 있는 상대 경로
+    ];
+
+    var isPlaceholder = false;
+    if (!finalThumbnailUrl || finalThumbnailUrl.trim() === "" || !(finalThumbnailUrl.startsWith("http://") || finalThumbnailUrl.startsWith("https://"))) {
+      isPlaceholder = true;
+    } else {
+      for (var i = 0; i < noImagePlaceholders.length; i++) {
+        if (finalThumbnailUrl.includes(noImagePlaceholders[i])) {
+          isPlaceholder = true;
+          break;
+        }
+      }
+    }
+
+    // currentThumbnailUrl이 비어 있거나 플레이스홀더이면 postBody에서 첫 번째 이미지 시도
+    if (isPlaceholder) {
+      var tempDiv = document.createElement('div');
+      tempDiv.innerHTML = postBody; // postBody는 JSON으로 이스케이프된 HTML 문자열
+      var firstImgTag = tempDiv.getElementsByTagName('img')[0];
+      if (firstImgTag && firstImgTag.src) {
+        finalThumbnailUrl = firstImgTag.src;
+      } else {
+        // 본문에도 이미지가 없고, 초기 썸네일도 플레이스홀더였으면 기본 플레이스홀더 사용
+        finalThumbnailUrl = defaultPlaceholder;
+      }
+    }
+
+    var imageTag;
+    // 이미지가 Blogger/Google 호스팅이고 리사이징 파라미터를 지원하는지 확인
+    // Google 이미지 프록시 URL (예: /img/proxy/)은 직접 리사이징이 안될 수 있으므로 제외
+    if ((finalThumbnailUrl.includes('bp.blogspot.com') || finalThumbnailUrl.includes('googleusercontent.com')) && !finalThumbnailUrl.includes('/img/proxy/')) {
+      var newSizeParam = "w" + desiredWidth + "-h" + desiredHeight + "-c"; // 새 리사이즈 파라미터
+      var resizedUrl;
+
+      // URL 경로에서 /sXXX/, /sXXX-c/, /wXXX-hYYY/, /wXXX-hYYY-c/ 등을 찾는 정규식
+      var resizeParamRegex = /\/(s[0-9]+(?:-c)?|w[0-9]+-h[0-9]+(?:-c)?)\//;
+
+      if (finalThumbnailUrl.match(resizeParamRegex)) {
+        resizedUrl = finalThumbnailUrl.replace(resizeParamRegex, "/" + newSizeParam + "/");
+      } else {
+        // 경로에 리사이즈 파라미터가 없는 경우, 지능적으로 삽입 시도
+        var parts = finalThumbnailUrl.split('/');
+        if (parts.length > 3) { // http://host/base/filename 형태 이상 필요
+          var lastSegment = parts[parts.length - 1];
+          var secondLastSegment = parts[parts.length - 2];
+
+          if ((lastSegment.includes('.') || lastSegment.length > 10) && !(secondLastSegment.match(/^(s[0-9]+(-c)?|w[0-9]+-h[0-9]+(-c)?)$/))) {
+            parts.splice(parts.length - 1, 0, newSizeParam);
+            resizedUrl = parts.join('/');
+          } else if (parts.length > 4 && secondLastSegment.includes('.') && !(parts[parts.length - 3].match(/^(s[0-9]+(-c)?|w[0-9]+-h[0-9]+(-c)?)$/))) {
+            parts.splice(parts.length - 2, 0, newSizeParam);
+            resizedUrl = parts.join('/');
+          }
+          else {
+            // 구조가 불분명하면 원본 URL 사용 (CSS에 의존)
+            resizedUrl = finalThumbnailUrl;
+          }
+        } else {
+          resizedUrl = finalThumbnailUrl; // 너무 짧아서 경로 수정이 안전하지 않음, 원본 사용
+        }
+      }
+      imageTag = '<img width="' + desiredWidth + '" height="' + desiredHeight + '" src="' + resizedUrl + '" alt="' + postTitle.replace(/"/g, "") + '" title="' + postTitle.replace(/"/g, "") + '" class="post-thumbnail" style="object-fit: cover;"/>';
+    } else {
+      // 외부 이미지 또는 Google 프록시 이미지: 원본 src 사용하고 CSS로 크기 조절
+      imageTag = '<img width="' + desiredWidth + '" height="' + desiredHeight + '" src="' + finalThumbnailUrl + '" alt="' + postTitle.replace(/"/g, "") + '" title="' + postTitle.replace(/"/g, "") + '" class="post-thumbnail" style="object-fit: cover;"/>';
+      console.log("=======================>", imageTag)
+    }
+
+    if (postTitle != "") return imageTag;
+    return ""; // 제목이 없으면 빈 문자열 반환 (일반적이지 않음)
+  }
+  //]]>
 </script>
+<b:if cond='data:post.isFirstPost'>
 </b:if>
 <div class='post-thumb'>
-<script type='text/javascript'>
-document.write(arlina_thumb_size(&quot;<data:post.thumbnailUrl/>&quot;,&quot;<data:post.title/>&quot;));
-</script>
+  <script type='text/javascript'>
+    document.write(arlina_thumb_size_modified("<data:post.thumbnailUrl/>", "<data:post.title/>", `<data:post.body/>`));
+  </script>
 <span class='label-info'> 
 	   <b:if cond='data:post.labels'>
           <b:loop values='data:post.labels' var='label'>
